@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drag and Drop Squares</title>
+  <style>
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      grid-template-rows: repeat(auto-fit, minmax(100px, 1fr));
+      width: 300px;
+      height: 300px;
+      position: relative;
+      border: 2px solid black;
+    }
+
+    .square {
+      width: 100px;
+      height: 100px;
+      position: relative;
+    }
+
+    #red-square { background-color: red; }
+    #green-square { background-color: green; }
+    #blue-square { background-color: blue; }
+  </style>
+</head>
+<body>
+  <div class="grid">
+    <div id="red-square" class="square"></div>
+    <div id="green-square" class="square"></div>
+    <div id="blue-square" class="square"></div>
+  </div>
+
+  <script>
+    const grid = document.querySelector('.grid');
+    const squares = document.querySelectorAll('.square');
+    const gridSize = 100;
+    let draggedElement = null;
+
+    squares.forEach(square => {
+      square.addEventListener('mousedown', (event) => {
+        draggedElement = square;
+        square.style.position = 'absolute';
+        moveAt(event.pageX, event.pageY);
+        square.style.zIndex = 1000;
+
+        function moveAt(pageX, pageY) {
+          square.style.left = pageX - grid.getBoundingClientRect().left - square.offsetWidth / 2 + 'px';
+          square.style.top = pageY - grid.getBoundingClientRect().top - square.offsetHeight / 2 + 'px';
+        }
+
+        function onMouseMove(event) {
+          moveAt(event.pageX, event.pageY);
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+
+        square.addEventListener('mouseup', () => {
+          document.removeEventListener('mousemove', onMouseMove);
+          square.style.zIndex = 1;
+          snapToGrid(square);
+        });
+      });
+    });
+
+    function snapToGrid(square) {
+      const gridRect = grid.getBoundingClientRect();
+      const squareRect = square.getBoundingClientRect();
+
+      const gridX = Math.round((squareRect.left - gridRect.left) / gridSize) * gridSize;
+      const gridY = Math.round((squareRect.top - gridRect.top) / gridSize) * gridSize;
+
+      square.style.left = gridX + 'px';
+      square.style.top = gridY + 'px';
+    }
+  </script>
+</body>
+</html>
